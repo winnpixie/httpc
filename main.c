@@ -14,10 +14,12 @@ int configure_server(int srvsockfd, int srvport) {
   srv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   if (bind(srvsockfd, (struct sockaddr *)&srv_addr, sizeof(srv_addr)) == -1) {
+    printf("Error during bind()\n");
     return 1;
   }
 
   if (listen(srvsockfd, 5) == -1) {
+    printf("Error during listen()\n");
     return 1;
   }
 
@@ -67,7 +69,7 @@ int process_client(int clsockfd) {
       free(filebuf);
     }
   } else {
-    printf("Malformed request.\n");
+    printf("Error processing request.\n");
   }
 
   free(buf);
@@ -88,11 +90,11 @@ int main(int argc, char **argv) {
   }
 
   if (configure_server(server_fd, port) != 0) {
-    printf("Error preparing server.\n");
+    printf("Error configuring server.\n");
     return EXIT_FAILURE;
   }
 
-  printf("http server started on port %d\n", port);
+  printf("HTTP server started on port %d\n", port);
 
   while (true) {
     struct sockaddr client_addr;
