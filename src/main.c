@@ -6,6 +6,8 @@
 // FIXME: Surely there is exists a not as dumb looking solution?
 void *srv_thread(void *args) {
   start_server(((int *)args)[0]);
+
+  free(args);
   return NULL;
 }
 
@@ -27,7 +29,6 @@ int main(int argc, char **argv) {
   int *thrdargs = malloc(sizeof(int));
   thrdargs[0] = srvsockfd;
   pthread_create(&srvthread, NULL, srv_thread, thrdargs);
-  free(thrdargs);
 
   while (getchar() != 'x') {
   }

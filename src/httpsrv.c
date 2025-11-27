@@ -57,6 +57,4 @@ void start_server(const int srvsockfd) {
   shutdown(srvsockfd, SHUT_RDWR);
 }
 
-void stop_server() {
-  state = 0;
-}
+void stop_server() { state = 0; }
