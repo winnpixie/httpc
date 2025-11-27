@@ -24,18 +24,8 @@ int configure_server(int server_fd, int port) {
   return 0;
 }
 
-char **strspl(const char *str, const char delim) {
-  char **arr = malloc(1);
-  int len = sizeof(str) - 1;
-  int loc = 0;
-
-  for (int i = 0; i < len; i++) {
-    if (str[i] != delim) {
-    }
-  }
-
-  return arr;
-}
+// TODO: String split method.
+char **strspl(const char *str, const char delim);
 
 int process_client(int client_fd) {
   printf("client connected.\n");
@@ -64,17 +54,17 @@ int process_client(int client_fd) {
       char *fbuf = malloc(fsize);
       fread(fbuf, sizeof(char), fsize, fd);
 
-      char *mesg =
+      char *response =
           "HTTP/1.1 200 OK\nContent-Type: text/html\nConnection: close\n\n";
-      send(client_fd, mesg, strlen(mesg), 0);
+      send(client_fd, response, strlen(response), 0);
       send(client_fd, fbuf, fsize, 0);
 
       free(fbuf);
       fclose(fd);
     } else {
-      char mesg[] = "HTTP/1.1 404 Not Found\nContent-Type: "
+      char response[] = "HTTP/1.1 404 Not Found\nContent-Type: "
                     "text/html\nConnection: close\n\nNF";
-      send(client_fd, mesg, sizeof(mesg), 0);
+      send(client_fd, response, strlen(response), 0);
 
       printf("NO FILE FOUND '%s'\n", path);
     }
