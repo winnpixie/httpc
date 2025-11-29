@@ -3,8 +3,9 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
-int state = 0;
+int state = HTTP_STOPPED;
 
 int prepare_server(const int srvsockfd, const int srvport) {
   struct sockaddr_in srvaddr;
@@ -12,6 +13,9 @@ int prepare_server(const int srvsockfd, const int srvport) {
   srvaddr.sin_family = AF_INET;
   srvaddr.sin_port = htons(srvport);
   srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+  int reuseaddropt = 1;
+  setsockopt(srvsockfd, SOL_SOCKET, SO_REUSEADDR, &reuseaddropt, sizeof(reuseaddropt));
 
   if (bind(srvsockfd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) == -1) {
     perror("Error - bind()");
@@ -42,19 +46,26 @@ int create_server(const int port) {
 }
 
 void start_server(const int srvsockfd) {
-  state = 1;
+  state = HTTP_RUNNING;
 
-  while (state == 1) {
-    struct sockaddr claddr;
-    socklen_t claddrlen;
+  while (state == HTTP_RUNNING) {
+    struct sockaddr_in claddr;
+    socklen_t claddrlen = sizeof(struct sockaddr_in);
 
-    int clsockfd = accept(srvsockfd, &claddr, &claddrlen);
+    int clsockfd = accept(srvsockfd, (struct sockaddr *)&claddr, &claddrlen);
     if (clsockfd != -1) {
       handle_client(clsockfd);
     }
   }
 
-  shutdown(srvsockfd, SHUT_RDWR);
+  stop_server(srvsockfd);
 }
 
-void stop_server() { state = 0; }
+void stop_server(const int srvsockfd) {
+  shutdown(srvsockfd, SHUT_RDWR);
+  close(srvsockfd);
+}
+
+void set_server_state(const int newstate) {
+  state = newstate;
+}
