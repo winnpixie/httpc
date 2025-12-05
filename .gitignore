@@ -9,4 +9,4 @@
 .DS_Store
 
 # Misc
-/httpc
+/test-*/
